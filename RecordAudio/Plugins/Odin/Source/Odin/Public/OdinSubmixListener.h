@@ -5,6 +5,7 @@
 #include "Engine/GameEngine.h"
 #include "Runtime/Launch/Resources/Version.h"
 #include "odin_sdk.h"
+#include "Sound/SampleBufferIO.h"
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 #include "ISubmixBufferListener.h"
 #else
@@ -13,29 +14,43 @@
 
 #include "OdinSubmixListener.generated.h"
 
-UCLASS(ClassGroup = Utility)
+UCLASS(ClassGroup = Utility, BlueprintType)
 class ODIN_API UOdinSubmixListener : public UObject, public ISubmixBufferListener
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-  public:
-    UOdinSubmixListener(const class FObjectInitializer& PCIP);
-    virtual ~UOdinSubmixListener();
+public:
+	UOdinSubmixListener(const class FObjectInitializer& PCIP);
+	virtual ~UOdinSubmixListener() override;
 
-    void StartSubmixListener();
-    void StopSubmixListener();
-    void SetRoom(OdinRoomHandle handle);
+	void StartSubmixListener();
+	void StopSubmixListener();
+	void SetRoom(OdinRoomHandle handle);
 
-  protected:
-    int32 OdinSampleRate = 48000;
-    int32 OdinChannels   = 2;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWriteWaveFileFinished, FString, Path)
 
-  private:
-    FCriticalSection    submix_cs_;
-    bool                bInitialized;
-    OdinRoomHandle      current_room_handle;
-    OdinResamplerHandle resampler_handle;
+	FWriteWaveFileFinished OnWriteWaveFileFinished;
 
-    void OnNewSubmixBuffer(const USoundSubmix* OwningSubmix, float* AudioData, int32 InNumSamples,
-                           int32 InNumChannels, const int32 InSampleRate, double) override;
+	UFUNCTION(BlueprintCallable)
+	void StartSavingBuffer();
+	UFUNCTION(BlueprintCallable)
+	void WriteBufferToFile(FString Path);
+
+protected:
+	int32 OdinSampleRate = 48000;
+	int32 OdinChannels = 2;
+
+private:
+	FCriticalSection submix_cs_;
+	bool bInitialized;
+	OdinRoomHandle current_room_handle;
+	OdinResamplerHandle resampler_handle;
+
+	bool bIsSavingBuffer;
+	float* SavedBuffer = new float[48000*2*3];
+	int BufferIndex = 0;
+	Audio::FSoundWavePCMWriter Writer;
+
+	virtual void OnNewSubmixBuffer(const USoundSubmix* OwningSubmix, float* AudioData, int32 InNumSamples,
+	                               int32 InNumChannels, const int32 InSampleRate, double) override;
 };
