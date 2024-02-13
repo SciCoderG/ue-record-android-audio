@@ -8,8 +8,8 @@ public class RecordAudioEditorTarget : TargetRules
 	public RecordAudioEditorTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V4;
-		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3;
+		DefaultBuildSettings = BuildSettingsVersion.Latest;
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_2;
 		ExtraModuleNames.Add("RecordAudio");
 	}
 }

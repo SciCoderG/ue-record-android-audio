@@ -27,14 +27,14 @@ public:
 	void StopSubmixListener();
 	void SetRoom(OdinRoomHandle handle);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWriteWaveFileFinished, FString, Path)
-
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWriteWaveFileFinished, FString, Path);
 	FWriteWaveFileFinished OnWriteWaveFileFinished;
 
 	UFUNCTION(BlueprintCallable)
 	void StartSavingBuffer();
 	UFUNCTION(BlueprintCallable)
-	void WriteBufferToFile(FString Path);
+	void StopSavingAndWriteBuffer(FString FileName);
+
 
 protected:
 	int32 OdinSampleRate = 48000;
@@ -46,11 +46,10 @@ private:
 	OdinRoomHandle current_room_handle;
 	OdinResamplerHandle resampler_handle;
 
-	bool bIsSavingBuffer;
-	float* SavedBuffer = new float[48000*2*3];
-	int BufferIndex = 0;
+	FThreadSafeBool bIsSavingBuffer = false;
+	Audio::TSampleBuffer<> SavedBuffer;
 	Audio::FSoundWavePCMWriter Writer;
-
+	
 	virtual void OnNewSubmixBuffer(const USoundSubmix* OwningSubmix, float* AudioData, int32 InNumSamples,
 	                               int32 InNumChannels, const int32 InSampleRate, double) override;
 };

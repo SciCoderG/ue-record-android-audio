@@ -29,8 +29,6 @@ UOdinSubmixListener::~UOdinSubmixListener()
 	{
 		odin_resampler_destroy(resampler_handle);
 	}
-
-	delete[]SavedBuffer;
 }
 
 void UOdinSubmixListener::StartSubmixListener()
@@ -73,10 +71,22 @@ void UOdinSubmixListener::SetRoom(OdinRoomHandle room)
 
 void UOdinSubmixListener::StartSavingBuffer()
 {
+	bIsSavingBuffer = true;
+	SavedBuffer.Reset();
 }
 
-void UOdinSubmixListener::WriteBufferToFile(FString Path)
+
+void UOdinSubmixListener::StopSavingAndWriteBuffer(FString FileName)
 {
+	bIsSavingBuffer = false;
+	FString Path = "./";
+	
+	Writer.BeginWriteToWavFile(SavedBuffer, FileName, Path, [&]()->void
+	{
+		const FString AbsolutePath = FPaths::ProjectSavedDir() + TEXT("BouncedWavFiles/") + FileName;
+		UE_LOG(LogTemp, Warning, TEXT("Saved Recording to: %s"), *AbsolutePath);
+		OnWriteWaveFileFinished.Broadcast(AbsolutePath);
+	});
 }
 
 void UOdinSubmixListener::OnNewSubmixBuffer(const USoundSubmix* OwningSubmix, float* AudioData,
@@ -99,10 +109,15 @@ void UOdinSubmixListener::OnNewSubmixBuffer(const USoundSubmix* OwningSubmix, fl
 	float* pbuffer = buffer.GetArrayView().GetData();
 	OdinReturnCode result =
 		odin_audio_process_reverse(current_room_handle, pbuffer, buffer.GetNumSamples());
-
-	if(bIsSavingBuffer)
+	
+	if(bIsSavingBuffer && InNumSamples > 0)
 	{
-		
+		if(SavedBuffer.GetNumChannels() != buffer.GetNumChannels() || SavedBuffer.GetSampleRate() != buffer.GetSampleRate())
+			SavedBuffer.Append(buffer.GetData(), buffer.GetNumSamples(), buffer.GetNumChannels(), buffer.GetSampleRate());
+		else
+		{
+			SavedBuffer.Append(buffer.GetData(), buffer.GetNumSamples());
+		}
 	}
 
 	if (odin_is_error(result))

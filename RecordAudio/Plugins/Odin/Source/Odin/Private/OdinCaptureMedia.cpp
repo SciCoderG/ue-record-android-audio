@@ -55,6 +55,9 @@ void UOdinCaptureMedia::SetAudioCapture(UAudioCapture* audio_capture)
                     return;
                 }
 
+                if(!audio_capture_ || !audio_capture_->IsValidLowLevel() || !IsValidLowLevel())
+                    return;
+
                 if (nullptr != audio_capture_
                     && (stream_sample_rate_ != audio_capture_->GetSampleRate()
                         || stream_num_channels_ != audio_capture_->GetNumChannels())) {

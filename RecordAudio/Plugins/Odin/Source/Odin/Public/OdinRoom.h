@@ -556,9 +556,14 @@ class ODIN_API UOdinRoom : public /* USceneComponent */ UObject
         return this->current_apm_settings_;
     }
 
+	UPROPERTY(BlueprintReadOnly, transient)
+	UOdinSubmixListener *submix_listener_;
+
   protected:
     void BeginDestroy() override;
     void FinishDestroy() override;
+
+	
 
   private:
     OdinRoomHandle room_handle_;
@@ -583,8 +588,7 @@ class ODIN_API UOdinRoom : public /* USceneComponent */ UObject
 
     void HandleOdinEvent(const OdinEvent event);
 
-    UPROPERTY(transient)
-    UOdinSubmixListener *submix_listener_;
+    
 
     friend class UOdinRoomJoin;
     friend class UOdinRoomAddMedia;
