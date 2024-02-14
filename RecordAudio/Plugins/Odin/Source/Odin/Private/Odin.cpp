@@ -64,7 +64,11 @@ void FOdinModule::StartupModule()
     }
 #endif
 
+#if PLATFORM_WINDOWS
     auto sample_rate   = 48000;
+#elif PLATFORM_ANDROID
+    auto sample_rate   = 44100;
+#endif
     auto channel_count = 2;
 
     odin_startup_ex(ODIN_VERSION,

@@ -100,12 +100,20 @@ void UOdinSubmixListener::OnNewSubmixBuffer(const USoundSubmix* OwningSubmix, fl
 
 	FScopeLock Lock(&submix_cs_);
 
+	UE_LOG(Odin, Display, TEXT("In Channels: %d In SampleRate: %d In Num Samples: %d In Audio Clock: %f"), InNumChannels, InSampleRate, InNumSamples, InAudioClock);
+
+
 	TSampleBuffer<float> buffer(AudioData, InNumSamples, InNumChannels, InSampleRate);
 	if (buffer.GetNumChannels() != OdinChannels)
 	{
+		UE_LOG(Odin, Display, TEXT("Due to differences in Channel Count, remixing buffer from %d Channels to %d OdinChannels"), InNumChannels, OdinChannels);
 		buffer.MixBufferToChannels(OdinChannels);
 	}
-
+	if(buffer.GetSampleRate() != OdinSampleRate)
+	{
+		UE_LOG(Odin, Display, TEXT("Detected difference in sample rate: %d In Sample Rate and %d Odin Sample Rate"), InSampleRate, OdinSampleRate);
+	}
+	
 	float* pbuffer = buffer.GetArrayView().GetData();
 	OdinReturnCode result =
 		odin_audio_process_reverse(current_room_handle, pbuffer, buffer.GetNumSamples());

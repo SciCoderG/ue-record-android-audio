@@ -37,7 +37,12 @@ public:
 
 
 protected:
-	int32 OdinSampleRate = 48000;
+
+#if PLATFORM_WINDOWS
+	int32 OdinSampleRate   = 48000;
+#elif PLATFORM_ANDROID
+	int32 OdinSampleRate   = 44100;
+#endif
 	int32 OdinChannels = 2;
 
 private:
