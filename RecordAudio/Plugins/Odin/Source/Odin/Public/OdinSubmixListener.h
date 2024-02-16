@@ -38,9 +38,9 @@ public:
 
 protected:
 
-#if PLATFORM_WINDOWS
+#if PLATFORM_DESKTOP
 	int32 OdinSampleRate   = 48000;
-#elif PLATFORM_ANDROID
+#elif PLATFORM_ANDROID || PLATFORM_IOS
 	int32 OdinSampleRate   = 44100;
 #endif
 	int32 OdinChannels = 2;
