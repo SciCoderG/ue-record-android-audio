@@ -64,7 +64,7 @@ void FOdinModule::StartupModule()
     }
 #endif
 
-#if PLATFORM_WINDOWS
+#if PLATFORM_DESKTOP
     auto sample_rate   = 48000;
 #elif PLATFORM_ANDROID
     auto sample_rate   = 44100;
