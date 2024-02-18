@@ -135,6 +135,8 @@ void UOdinRoom::UpdateAPMConfig(FOdinApmSettings apm_config)
 
 void UOdinRoom::UpdateAPMStreamDelay(int64 DelayInMs)
 {
+
+    UE_LOG(Odin, Log, TEXT("Updated APM Stream Delay to: %lld"), DelayInMs);
     odin_audio_set_stream_delay(this->room_handle_, DelayInMs);
 }
 
