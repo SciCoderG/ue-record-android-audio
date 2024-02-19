@@ -1,0 +1,3 @@
+[submodule "RecordAudio/Plugins/Odin"]
+	path = RecordAudio/Plugins/Odin
+	url = git@gitlab.4players.de:odin/integrations/unreal.git
